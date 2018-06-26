@@ -1,0 +1,696 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="OptAlert" content="Allowing traders/investors to multiple set smart rules for checking crypto prices, according to coinmarketcap. Smart trading with smart rules.">
+    <meta name="keywords" content="bitcoin, cryptocurrencies, neo, ethereum, alert, optalert, smartalert, coinmarketcap, coinmarketalert, rules, stoplimit, stop, limit">
+    <meta name="robots" content="bitcoin, cryptocurrencies, neo, ethereum, alert, optalert, smartalert, coinmarketcap, coinmarketalert, rules, stoplimit, stop, limit">
+    <title>OptAlert - Allowing traders to set smart rules</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-ui-1.12.1.js"></script>
+    <link rel="stylesheet" href="css/jquery-ui-1.12.1.css">
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>!-->
+    <!--<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>!-->
+    <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">!-->
+</head>
+
+<body>
+
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">OptAlert (v1.1)</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#">Home</a></li>
+      <li class="active"><a href="#">Buying and selling API (comming soon...)</a></li>
+      <li class="active"><a href="/OptAlert-debug.apk" download="OptAlert_Android_v07">Download our Beta Android APK (v0.7)</a></li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+body {
+    background-color: #b2c8f1;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 950px;
+}
+</style>
+
+
+<div id="mainPageHeader" title="Welcome to the smart alert tool!">
+  <center>
+    <h1>OptAlert (v1.1)</h1>
+    Using your intelligence for setting multiple dependent/independent limit alerts <br> <br>
+    </center>
+</div>
+   <!--
+    <div class="alert alert-success">
+      Beta version -- Free trial period has been extendend until XMAS, 25th December, (enjoy your personalized smart alerts :D )!
+    </div>
+
+
+    <div class="alert alert-danger">
+    <small>If you were brought here from https://coinmarket-alert.com we apologize for this redirection to https://coinmarketalert.bitballoon.com/. <br></small>
+  </div> -->
+
+
+<!--
+<div class="alert alert-success">
+  Run alert will start in a infinite loop.
+  Low refreshing rates may require heavy usefulless computiotional resources. <br>
+  Rules status are only updated when fee is paid and monitor is running. <br>
+
+  <center>
+    <p><input type="button" class="btn btn-success" value="Run alert monitoring" id='mylink'>
+    Desired refreshing time (s) <input type="text" name="refreshTime" id="refreshTime" maxlength="2" onchange="this.value = minmax(this.value, 0.5, 120)" value="10" size="3" /></p>
+    </p><br>
+    Click <input type="button" class="btn btn-danger" value="here" id='stopMonitor'>  to stop your process. <br>
+  </center>
+</div>
+-->
+
+
+
+<center>
+<input type="button" value="Add rule" id='addNewRules' class="btn btn-info"> &nbsp; &nbsp;
+Type: <select id="typeBox" class="selectpicker"> <optgroup label="types"> <option value=1>>=</option> <option value=0><=</option> </optgroup></select>
+Base: <select id="currencyBox" class="selectpicker"> <optgroup label="currencies"> <option>USD</option> <option>BTC</option> <option selected="selected">NEO</option> <option>ETHEREUM</option> </optgroup></select>
+Dependent: <select id="depBox" class="selectpicker" title="myDepTooltip"><optgroup label="yes/no"> <option value=1>true</option> <option value=0>false</option> </optgroup></select>
+Ticker: <input type="text" name="tickerBox" id="tickerBox" maxlength="15" value="gas" size="10" title="myTickerTooltip"/>
+Limit: <input type="text" name="limitBox" id="limitBox" maxlength="10" value="0.83" size="10" /> <br>
+
+<!--<input type="button" value="Remove rule:" id='removeRule' class="btn btn-warning" > <input type="text" name="ruleID" id="ruleID" maxlength="5" value="0" size="5" /> <br> <br>-->
+</center>
+<br>
+<div id="currentRules" class="table-responsive"></div>
+
+<div class="alert alert-warning">
+  <center>
+    <input type="button" class="btn btn-success" value="Start monitor" id='runAlertMonitor'>
+    Refreshing rate (s)
+    <input type="text" title = 'myRunBox' name="refreshTime" id="refreshTime" maxlength="3" onchange="this.value = minmax(this.value, 0.5, 120)" value="10" size="3" />
+    <input type="button" class="btn btn-danger" value="Stop" id='stopMonitor'> <br> <br>
+  </center>
+  <center><div id="runStatus" class="alert alert-success"></div></center>
+</div>
+
+<audio id="player"></audio>
+
+<div class="modal-body row">
+  <div class="col-md-6">
+    <div class="alert alert-info">
+      <center>
+        <b><h4>Basic instructions:</h4></b>
+        1 - Delete the examples rules that are initially set by the app. <br>
+        2 - Create your personalized set of rules:<br>
+        &nbsp; 2.1 - Insert a lower/greater limit for a desired ticker (please, check the correct name at CoinMarketCap);<br>
+        &nbsp; 2.2 - Create additional rules that will be actived only if the first/previous ones are already active;<br>
+        &nbsp; 2.3 - Choose base currency (some altcurrencies can be used as base comparison). For example, GAS/NEO ratio;<br>
+        3 - Leave the browser (on desktop or smartphone) open until, hopefully, all of your rules are TRUE/ACCOMPLISHED and then:<br>
+        4 - An alert will notify you! Make your move ASAP on the exchange.<br>
+        *You may want to check some information written in your console.
+      </center>
+    </div>
+  </div>
+  <div class="col-md-6">
+      <div class="alert alert-info">
+      <center>
+        <h4>Motivation:</h4>
+          Most exchanges have, nowadays, stop limits conditions. However, it is not possible, to the best of our knowledge, to integrate several stopping and buying conditions. <br>
+          For example, if you imagine that the price is going down and latter going up, then, you could set a lower price condition together with a greater price one. <br>
+          The later will be dependent and only activated if the first event happened.
+          This may save your time looking into graphs and time series.
+          <br>Please, thanks to everyone for the feedback that we received during the free trial period.
+      </center>
+    </div>
+  </div>
+</div>
+
+<center>
+    This is a client-side based application. We do not save your specific set of rules.
+    <p>We hope you enjoy our smart alert tool.</p>
+
+    <p>&copy; <b>OptAlert Team, 2018</b></p>
+
+    <figure>
+      <!--<img src="https://i.imgur.com/ZIW0z6s.jpg" alt="Relax and wait" width="304" height="228">!-->
+      <img src="images/vitor-icon-small.png" class="img-rounded" alt="Relax and wait" width="304" height="228 ">
+      <br><b>A system that provides a true relaxing/resting time...
+    </figure>
+    <!--http://i.imgur.com/xC5SnSL.png" -->
+    <!--<img src="images/donateBTC.png" alt="Donate BTC">-->
+</center>
+
+<section id="footer">
+        <div class="inner">
+          <center>
+          <h4>Fell free to share your profits and boost this tool:</h4>
+          <!-- <p style="text-transform:none;">
+            Let me instead talk about the sacrifices required to make a service like this work. It can be enormously time consumingandthat's the real cost here. Plus there are a few services I pay for out of my own pocket to make the magic happen. If you wantto kick in to help me cover those costs, that would be awesome. And no problem if you don't want to either; justshare thelove and help others make use of the service.
+          </p> -->
+          <!-- <ul class="contact">
+            <li class="fa-twitter"><a href="#">twitter.com/untitled-tld</a></li>
+            <li class="fa-instagram"><a href="#">instagram.com/untitled-tld</a></li>
+          </ul> -->
+          NEO/GAS: AeF4MBBYq2cqpkjiXAdDso6QKQrCphZTjd<br>
+          ETH: 0xd35fb76723636e11Fa580665A54E19F781C6Cd8a<br>
+          BTC: 13DPw8y5U6y1B2gc13TsCrUpUqUxwCnixc<br>
+          </center>
+          <ul class="copyright">
+          <li>  &copy; <a href='#mainPageHeader'>OptAlert Team, 2018</a></li>
+          </ul>
+        </div>
+
+</section>
+
+</body>
+
+
+
+<!-- ====================================================
+SCRIPTS BEGINS
+========================================================= -->
+
+<script type="text/javascript">
+//variables and notifications only
+var BASECOINMARKETURL = "https://api.coinmarketcap.com/v1/ticker/";
+var priceAlert = [];
+var alertStatus = [];
+var typesToSearch = [];
+var altCurrenciesPrice = [];
+var altCurrenciesID = [];
+var stopLoop = false;
+var monitorRunning = false;
+var lostPackages = [{tries:0, lost:0}];
+
+
+//Initializing variable and call init alerts
+document.getElementById("runStatus").innerHTML = "<b>OPTALERT MONITOR STATUS</b>: nothing to do...<br>";
+
+//tootips
+$(document).tooltip();
+document.getElementById('refreshTime').title = "Run alert will start in a infinite loop. Low refreshing rates may require heavy useless computiotional resources.";
+document.getElementById('tickerBox').title = "You should stricly follow coinmarketcap ticker names.";
+document.getElementById('depBox').title = "Dependent rules will only be active if all rules before it are true.";
+document.getElementById('mainPageHeader').title = "If you were brought here from https://coinmarket-alert.com we apologize for this redirection to https://coinmarketalert.bitballoon.com/.";
+
+//document.getElementById('myRunBox').title = "Run alert will start in a infinite loop.Low refreshing rates may require heavy usefulless computiotional resources. \n Rules status are only updated when fee is paid and monitor is running.";
+
+function minmax(value, min, max)
+{
+    if(parseFloat(value) < min || isNaN(parseFloat(value)))
+        return min;
+    else if(parseFloat(value) > max)
+        return max;
+    else return value;
+}
+</script>
+
+
+<!-- BUTTONS FUNCTIONS-->
+<script type="text/javascript">
+  initializeAlerts();
+
+  function buttonRemoveRule(idToRemove){
+    if(idToRemove < priceAlert.length && idToRemove > -1)
+    {
+      if(monitorRunning == true)
+      {
+        alert("Your tracking system is on! Stop it first.");
+      }else{
+        priceAlert.splice(idToRemove, 1);
+        alertStatus.splice(idToRemove, 1);
+        updateTypesToSearch();
+        drawRules();
+      }
+    }else{
+      alert("Cannot remove rule ID " + idToRemove + " from set of rules with size " + priceAlert.length)
+    }
+  }
+
+  //add rule to the vector
+  document.getElementById('addNewRules').onclick = function(){
+      currencyToAddIndex = document.getElementById('currencyBox');
+      currencyToAdd = currencyToAddIndex.options[currencyToAddIndex.selectedIndex].text;
+
+      depToAddIndex = document.getElementById('depBox');
+      depToAdd = depToAddIndex.options[depToAddIndex.selectedIndex].value;
+
+      typeToAddIndex = document.getElementById('typeBox');
+      typeToAdd = typeToAddIndex.options[typeToAddIndex.selectedIndex].value;
+
+
+      console.log("boxValueCurrency: " + currencyToAdd);
+      console.log("depCurrency: " + depToAdd);
+      console.log("typeBox: " + typeToAdd);
+
+      if(monitorRunning == true)
+      {
+        alert("Your tracking system is on! Stop it first.");
+      }else{
+        priceAlert.push({type:typeToAdd, ticker:document.getElementById('tickerBox').value,limit:document.getElementById('limitBox').value, dependent:depToAdd, currency:currencyToAdd}); //LOWER
+        alertStatus.push(false);
+        updateTypesToSearch();
+        drawRules();
+      }
+      console.log("current pricealert contains " + priceAlert.length + " objects")
+  }
+
+  document.getElementById('stopMonitor').onclick = function(){
+        if(monitorRunning == true){
+        var currentdate = new Date();
+        document.getElementById("runStatus").innerHTML = "<b>OPTALERT MONITOR STATUS</b>: Your rules monitor has been stoped at " + Date() + "! <br /> Pick a new rule! :)<br>";
+        stopLoop = true;
+        monitorRunning = false;
+      }else{
+        alert("Nothing to stop. Start your tracking system first.");
+      }
+  }
+
+  document.getElementById('runAlertMonitor').onclick = function(){
+      if(monitorRunning == false) {
+        if(alertStatus.length != 0 )
+        {
+          if ( confirm( "This task will refresh an assyncronous task each " + document.getElementById("refreshTime").value + " seconds in an infinite loop. Do you wish to continue?" ) )
+          {
+              document.getElementById("runStatus").innerHTML = "<b>OPTALERT MONITOR STATUS</b>: monitoring your rules with refreshing time of " + document.getElementById("refreshTime").value + " seconds.<br>";
+
+              stopLoop = false;
+              monitorRunning = true;
+              lostPackages.length = 0;
+              lostPackages.push({tries:0, lost:0}); //GREATER
+
+              callInfiniteAlertMonitorLoop();
+          }
+        }else{
+          alert("ERROR: At least, one rule should be inserted!")
+        }
+      }else{
+        alert("Your monitor is already running!")
+      }
+   }
+
+  function initializeAlerts(){
+      //dependet:  dependent or independent - All dependent are only activated if all previous are already true
+      //priceAlert.push({type:false, ticker:"gas",limit:23, dependent:true, currency:"USD"}); //LOWER
+      //priceAlert.push({type:true, ticker:"gas",limit:0.0013, dependent:true, currency:"BTC"}); //GREATER
+      //priceAlert.push({type:true, ticker:"neo",limit:0.006, dependent:true, currency:"BTC"}); //GREATER
+      //priceAlert.push({type:false, ticker:"bitcoin",limit:14000.05, dependent:true, currency:"USD"}); //GREATER
+      //priceAlert.push({type:true, ticker:"ethereum",limit:1100, dependent:true, currency:"USD"}); //GREATER
+      priceAlert.push({type:true, ticker:"gas",limit:0.72, dependent:true, currency:"NEO"}); //GREATER
+      priceAlert.push({type:false, ticker:"gas",limit:0.63, dependent:true, currency:"NEO"}); //GREATER
+      priceAlert.push({type:false, ticker:"neo",limit:0.14, dependent:false, currency:"ETHEREUM"}); //GREATER
+      priceAlert.push({type:false, ticker:"bitcoin",limit:19000, dependent:false, currency:"USD"}); //GREATER
+
+
+      for (i = 0; i < priceAlert.length; i++) {
+          alertStatus[i] = false;
+      }
+
+      console.log(priceAlert);
+      console.log(alertStatus);
+
+      updateTypesToSearch();
+  }
+
+  function updateTypesToSearch(){
+    typesToSearch.length = 0; //cleaning array
+    altCurrenciesPrice.length = 0; //cleaning array
+    altCurrenciesID.length = 0;
+
+    //Check if any alt currency should be inserted
+    for (i = 0; i < priceAlert.length; i++) {
+        var priceAlertCurrency = priceAlert[i].currency;
+        if(priceAlertCurrency!="BTC" && priceAlertCurrency!="USD")
+        {
+          //Alt currency should be monitored
+          var alreadyIncluded = false;
+          for (t = 0; t < altCurrenciesID.length; t++)
+          {
+            if(altCurrenciesID[t].toUpperCase() == priceAlertCurrency.toUpperCase())
+                alreadyIncluded = true;
+          }
+
+          if(!alreadyIncluded)
+          {
+            typesToSearch.push(priceAlertCurrency);
+            altCurrenciesPrice.push(-1);
+            altCurrenciesID.push(priceAlertCurrency);
+          }
+        }
+    }
+
+    //Check all request tickers
+    for (i = 0; i < priceAlert.length; i++) {
+        var alreadyIncluded = false;
+        for (t = 0; t < typesToSearch.length; t++)
+        {
+          if(typesToSearch[t].toUpperCase() == priceAlert[i].ticker.toUpperCase())
+              alreadyIncluded = true;
+        }
+
+        if(!alreadyIncluded)
+            typesToSearch.push(priceAlert[i].ticker);
+    }
+
+    console.log("There are " + typesToSearch.length + " types to search updated:" + typesToSearch);
+  }
+
+  function updateAlert(index){
+    alertStatus[index] = true;
+
+    console.log("alertStatus updated:" + alertStatus);
+  }
+
+  function checkDependenceAndUpdate(index) {
+      var dependencesAccomplished = 0;
+      for (i = 0; i < index; i++){
+        if(alertStatus[i] == true)
+          dependencesAccomplished += 1;
+      }
+
+      if(dependencesAccomplished == index)
+        updateAlert(index);
+
+    console.log("depAccomplishement:" + (dependencesAccomplished == index));
+  }
+
+  function checkAlertAccomplishement() {
+    var alertAccomplished = 0;
+    for (i = 0; i < alertStatus.length; i++){
+      if(alertStatus[i] == true)
+        alertAccomplished += 1;
+    }
+
+    console.log("Inside check alert:" + alertStatus);
+    console.log(alertStatus.length);
+
+    document.getElementById("runStatus").innerHTML = "<b>OPTALERT MONITOR STATUS</b>: monitoring your rules with refreshing time of " + document.getElementById("refreshTime").value + " seconds. Rules accomplished: "
+    + alertAccomplished + "/" + alertStatus.length + " | Lost packages "+ lostPackages[0].lost+ "/" +lostPackages[0].tries + "<br>" ;
+
+    if(alertAccomplished == alertStatus.length)
+    {
+      //Shake window
+      //play sound
+          stopLoop = true;
+          monitorRunning = false;
+          player = document.getElementById('player');
+          player.src = 'soundAlert.opus';
+          //player.play()
+
+          var currentdate = new Date();
+          document.getElementById("runStatus").innerHTML = "<b>OPTALERT MONITOR STATUS</b>: Congratulations. Your rule has been accomplished at " + currentdate + "! <br /> Hurry to perform your action :) <br>";
+
+          if (Notification.permission !== "granted")
+          {
+            Notification.requestPermission();
+          }
+          else {
+           var notification = new Notification('OptAlert monitor.', {
+             icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+             body: "Congratulations. Your rule has been accomplished at",
+           });
+          }
+
+          confirm("Your set of limits have all been accomplished!")
+    }
+}
+
+function verifiesAlerts(cTicker,cPriceUSD,cPriceBTC){
+  for (pa = 0; pa < priceAlert.length; pa++) {
+       if(cTicker == priceAlert[pa].ticker){
+            //TICKER MATCHES! VERIFIES...
+            var cPrice = -1;
+
+            if(priceAlert[pa].currency.toUpperCase() == "USD")
+                cPrice = cPriceUSD;
+
+            if(priceAlert[pa].currency.toUpperCase() == "BTC")
+                cPrice = cPriceBTC;
+
+            if(priceAlert[pa].currency.toUpperCase() == "NEO")
+            {
+                console.log(altCurrenciesID);
+                console.log(altCurrenciesPrice);
+                for(i = 0;i<altCurrenciesID.length;i++)
+                    if(altCurrenciesID[i].toUpperCase() == "NEO")
+                        if(altCurrenciesPrice[i] != -1)
+                               cPrice = cPriceUSD/altCurrenciesPrice[i];
+            }
+
+            if(priceAlert[pa].currency.toUpperCase() == "ETHEREUM")
+            {
+                console.log(altCurrenciesID);
+                console.log(altCurrenciesPrice);
+                for(i = 0;i<altCurrenciesID.length;i++)
+                    if(altCurrenciesID[i].toUpperCase() == "ETHEREUM")
+                        if(altCurrenciesPrice[i] != -1)
+                               cPrice = cPriceUSD/altCurrenciesPrice[i];
+            }
+
+            console.log("Verying ticker " + priceAlert[pa].ticker + " asked in relation to  " + priceAlert[pa].currency + ". Current price is: " + cPrice);
+
+            updatePriceAndCurrentCMPrice(pa, cPrice);
+
+            if(cPrice == -1)
+                 return; //Stop verying - Currency problems
+
+            console.log("Passed returns");
+
+            if(priceAlert[pa].type == true) //GREATER
+            {
+              if(parseFloat(cPrice) >= parseFloat(priceAlert[pa].limit))
+              {
+                if(priceAlert[pa].dependent == true)
+                {
+                   checkDependenceAndUpdate(pa);
+                }
+                else {
+                  updateAlert(pa);
+                }
+              }
+              console.log("alertStatus is ", alertStatus)
+
+            }else { //LOWER
+              if(parseFloat(cPrice) <= parseFloat(priceAlert[pa].limit))
+              {
+                //console.log("PRICE IS LOWER:"+cPrice+"/"+priceAlert[pa].limit)
+                if(priceAlert[pa].dependent == true)
+                {
+                   checkDependenceAndUpdate(pa);
+                 }
+                else {
+                   updateAlert(pa);
+                }
+              }
+            }
+
+            updatePriceAndCurrentCMPrice(pa, cPrice);
+      } //If for checking if ticker matches
+  } //loop for each alert
+} //Function for verifing each alert
+
+
+function printRules(){
+  for (i = 0; i < priceAlert.length; i++) {
+        console.log("Rule " + i + " type:" + priceAlert[i].type + " ticker:" + priceAlert[i].ticker  + " limit:" + priceAlert[i].limit  + " dependent:" + priceAlert[i].dependent + " currency:" + priceAlert[i].currency)
+  }
+}
+
+//checkAlerts(5);
+function callInfiniteAlertMonitorLoop () {           //  create a loop function
+   var i = 1;                     //  set your counter to 1
+   loopRefreshingTime = 1000 * document.getElementById("refreshTime").value;
+   //console.log("loop setTimeout is :" + loopRefreshingTime + " equivalent to " + loopRefreshingTime/1000 + " seconds");
+
+   var vUrlsToGet = [];
+   for (i = 0; i < typesToSearch.length; i++) {
+     vUrlsToGet.push(getCoinMarketTickerURL(typesToSearch[i]));
+   }
+   console.log("URLs to get " + vUrlsToGet);
+
+   for (i = 0; i < vUrlsToGet.length; i++) {
+           callAssycronousGetTicker(vUrlsToGet[i]);
+   }  //loop of url tickers finishes
+
+   setTimeout(function(){
+      i++;                     //  increment the counter
+      if (i < 10 && !stopLoop) {            //  if the counter < 10, call the loop function
+         callInfiniteAlertMonitorLoop();             //  ..  again which will trigger another
+      }                        //  ..  setTimeout()
+    }, loopRefreshingTime);
+}
+
+function callAssycronousGetTicker(urlToGet){
+          console.log("Going to get " + urlToGet);
+
+          lostPackages[0].tries++;
+          $.get( urlToGet, function( data ) {
+           //$.get( BASECOINMARKETURL + typesToSearch[0], function( data ) {
+            //$( ".result" ).html( data );
+            console.log("Get "+ data[0].id + " json tickers was performed with success!");
+            //console.log(data); //LOG OBJ
+            console.log(data[0]);
+            console.log("inside assyncronous get: Current price of "+ data[0].id + " is " + data[0].price_usd +"USD/" +data[0].price_btc + "BTC");
+
+            console.log("altCurrenciesPrices " + altCurrenciesPrice);
+            console.log("altCurrenciesIDS " + altCurrenciesID);
+
+            for(i = 0;i<altCurrenciesID.length;i++)
+                if(altCurrenciesID[i].toUpperCase() == data[0].id.toUpperCase())
+                      altCurrenciesPrice[i] = data[0].price_usd;
+
+            verifiesAlerts(data[0].id,data[0].price_usd,data[0].price_btc);
+
+            console.log("Inside getAjax. There are " + alertStatus.length + " alerts: " + alertStatus);
+            printRules();
+
+            if(!stopLoop) //do not updateAlert if an order to stopLoop has been placed
+              checkAlertAccomplishement();  //Check if your limits have been reached
+
+          }).fail(function() {
+              lostPackages[0].lost++;
+              //alert("Problems were detected when trying get  some of your tickers. We suggest you to stop and reestart the function. Ticker might be wrong.");
+          }); //Finish get assyncronous
+}
+
+function getCoinMarketTickerURL(tickerID){
+  var urlWithTicker = "";
+  return urlWithTicker.concat(BASECOINMARKETURL,tickerID,"/");
+}
+
+//===============================================
+//Script for drawing rules at a div content
+drawRules();
+function drawRules(){
+	//Clear previous data
+	document.getElementById("currentRules").innerHTML = "";
+	var table = document.createElement("table");
+  table.setAttribute('class', 'table');
+
+  var row = table.insertRow(-1);
+
+  row.insertCell(-1).appendChild(document.createTextNode("Rule ID"));
+  row.insertCell(-1).appendChild(document.createTextNode("Ticker"));
+  row.insertCell(-1).appendChild(document.createTextNode(">=/<="));
+  row.insertCell(-1).appendChild(document.createTextNode("Limit/Coinmarket"));
+  row.insertCell(-1).appendChild(document.createTextNode("Base currency"));
+  row.insertCell(-1).appendChild(document.createTextNode("Dependent"));
+  row.insertCell(-1).appendChild(document.createTextNode("Activation \n status"));
+
+  for (i = 0; i < priceAlert.length; i++) {
+      var row = table.insertRow(-1);
+      //row.insertCell(-1).appendChild(document.createTextNode(i));
+      //Insert button that remove rule
+      var b = document.createElement('button');
+      b.setAttribute('content', 'test content');
+      b.setAttribute('class', 'btn btn-danger');
+      //b.onclick = function () {buttonRemoveRule();};
+      b.setAttribute('value', i);
+      //b.onclick = function () {alert(this.value);};
+      b.onclick = function () {buttonRemoveRule(this.value);};
+      b.innerHTML = i;
+
+
+      row.insertCell(-1).appendChild(b);
+
+      row.insertCell(-1).appendChild(document.createTextNode(priceAlert[i].ticker));
+
+      if(priceAlert[i].type == true)
+			  row.insertCell(-1).appendChild(document.createTextNode(">="));
+      else
+        row.insertCell(-1).appendChild(document.createTextNode("<="));
+
+      var printRulePriceLimit = document.createElement('div');
+      printRulePriceLimit.setAttribute('id', "childRule"+i);
+      printRulePriceLimit.innerHTML = parseFloat(priceAlert[i].limit).toFixed(3) + "/?";
+
+      row.insertCell(-1).appendChild(printRulePriceLimit);
+      row.insertCell(-1).appendChild(document.createTextNode(priceAlert[i].currency));
+
+      if(priceAlert[i].dependent == true)
+        row.insertCell(-1).appendChild(document.createTextNode("true"));
+      else
+        row.insertCell(-1).appendChild(document.createTextNode("false"));
+
+
+      var ruleDonationNode = document.createElement('div');
+      ruleDonationNode.setAttribute('id', "childDonation"+i);
+      ruleDonationNode.innerHTML = "-";
+
+        if(alertStatus[i] == true)
+          ruleDonationNode.innerHTML = "ON";
+        else
+          ruleDonationNode.innerHTML = "OFF";
+
+      row.insertCell(-1).appendChild(ruleDonationNode);
+
+	}
+  document.getElementById("currentRules").appendChild(table);
+
+}//Finishe DrawRules function
+
+function updatePriceAndCurrentCMPrice(rulesIndex, ruleIndexCMPrice){
+  if(rulesIndex >= priceAlert.length)
+    alert("ERROR WHEN UPDATING TABLE PRICE!");
+
+  if(ruleIndexCMPrice != -1)
+    document.getElementById("childRule"+rulesIndex).innerHTML = parseFloat(priceAlert[rulesIndex].limit).toFixed(4) + "/" + parseFloat(ruleIndexCMPrice).toFixed(4);
+
+
+  if(alertStatus[rulesIndex] == true)
+      document.getElementById("childDonation"+rulesIndex).innerHTML = "ON";
+  else
+      document.getElementById("childDonation"+rulesIndex).innerHTML = "OFF";
+
+
+} //Script for drawing rules at a div content
+
+
+
+/*
+function checkAlerts(tries){
+    for (attemps = 0; attemps < tries; attemps++)
+    {
+              for (i = 0; i < typesToSearch.length; i++) {
+                    console.log(BASECOINMARKETURL + typesToSearch[i] + "/");
+                    var currentTicker = typesToSearch[i];
+                    var currentTickerURL = BASECOINMARKETURL + currentTicker + "/";
+
+                    console.log(typesToSearch[i]);
+                  $.get( currentTickerURL, function( data ) {
+                  //$.get( BASECOINMARKETURL + typesToSearch[0], function( data ) {
+                    $( ".result" ).html( data );
+                    //console.log(data); //LOG OBJ
+                    console.log(data[0]);
+                    console.log("Current price of "+ currentTicker + " is " + data[0].price_usd);
+                    verifiesAlerts(currentTicker,data[0].price_usd);
+
+                    console.log("inside get:" + alertStatus);
+                    permanentStatus = alertStatus;
+                    console.log("inside get: PermanentStatus:" + permanentStatus);
+                    checkAlertAccomplishement();  //Check if your limits have been reached
+
+                    myLoop(); //waits 1 second
+                  }); //get querry finishes assyncronously
+            } //loop of types finishes
+
+    } //loop tries finishes
+
+} //Function check finishes
+*/
+
+//===============================================
+</script>
+
+<!-- ====================================================
+SCRIPTS BEGINS
+========================================================= -->
+
+</html>
